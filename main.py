@@ -1,5 +1,7 @@
 import os
 import zipfile
+import PySimpleGUI as PySG
+# import shutil
 
 
 class ProtectionRemoval:
@@ -16,10 +18,16 @@ class ProtectionRemoval:
         else:
             self.new_name = new_name
 
-    # not sure if this is needed
-    def file_first_checker(self):
-        pass
-        # if os.path.exists(self.path) and self.path.endswith('.xlsx'):
+    @staticmethod
+    def file_first_checker(path):
+        """
+        Checks if path leads to .xlsx file
+        :return: bool
+        """
+        if os.path.exists(path) and path.endswith('.xlsx'):
+            return True
+        else:
+            return False
 
     def change_xlsx_to_zip(self):
         """
@@ -79,7 +87,7 @@ class ProtectionRemoval:
             self.path = self.path[:self.path.rfind('\\')] + '\\' + self.new_name + '.zip'
         except WindowsError as e:
             print('Error: {}'.format(e))
-            os.remove(self.path[:self.path.rfind('\\')] + '\\' + self.new_name + '.zip')
+            # os.remove(self.path[:self.path.rfind('\\')] + '\\' + self.new_name + '.zip')
 
     def get_str_from_xml(self):
         """
@@ -114,11 +122,44 @@ class ProtectionRemoval:
 
 
 if __name__ == '__main__':
-    fileToChangePath = r'C:\Users\zieli\Documents\python projekty\protectionRemovalForExcel\xlsxFiles\50149047 - ' \
-                       r'Tabela techniczna_poz.2.xlsx'
-    fileToRemoveProtection = ProtectionRemoval(fileToChangePath)
-    fileToRemoveProtection.change_xlsx_to_zip()
-    fileToRemoveProtection.unpack_zip()
-    fileToRemoveProtection.get_str_from_xml()
-    fileToRemoveProtection.pack_zip()
-    fileToRemoveProtection.change_zip_to_xlsx()
+    # fileToChangePath = r'C:\Users\zieli\Desktop\szybki test\50149047 - Tabela techniczna_poz.2.xlsx'
+    # fileToRemoveProtection = ProtectionRemoval(fileToChangePath)
+    # fileToRemoveProtection.change_xlsx_to_zip()
+    # fileToRemoveProtection.unpack_zip()
+    # fileToRemoveProtection.get_str_from_xml()
+    # fileToRemoveProtection.pack_zip()
+    # fileToRemoveProtection.change_zip_to_xlsx()
+
+    layout = [
+        [PySG.Text('Excel file path'), PySG.In(size=(40, 1), enable_events=True, key='-FILE-'),
+         PySG.Button('OK')],
+        [PySG.Text('Output'), PySG.Output(size=(80, 5))]
+        ]
+    window = PySG.Window('Protection removal for excel files', layout)
+
+    fileToChangePath = ''
+
+    while True:
+        event, value = window.read()
+
+        if event == 'Exit' or event == PySG.WINDOW_CLOSED:
+            break
+
+        if event == '-FILE-':
+            fileToChangePath = value['-FILE-']
+
+        if event == 'OK':
+            if ProtectionRemoval.file_first_checker(fileToChangePath):
+                print('Path OK')
+                window.refresh()
+                fileToRemoveProtection = ProtectionRemoval(fileToChangePath)
+                fileToRemoveProtection.change_xlsx_to_zip()
+                fileToRemoveProtection.unpack_zip()
+                fileToRemoveProtection.get_str_from_xml()
+                fileToRemoveProtection.pack_zip()
+                fileToRemoveProtection.change_zip_to_xlsx()
+            else:
+                print('Wrong path')
+            window.refresh()
+
+    window.close()

@@ -11,7 +11,7 @@ class ProtectionRemoval:
         :param path: path of a xlsx. file to be unlocked
         :param new_name: name of unlocked file
         """
-        self.path = path
+        self.path = path.replace('/', '\\')
         # new name can be inserted but here is default
         if new_name is None:
             self.new_name = 'unlocked_' + os.path.basename(path).removesuffix('.xlsx')
@@ -131,7 +131,7 @@ if __name__ == '__main__':
     # fileToRemoveProtection.change_zip_to_xlsx()
 
     layout = [
-        [PySG.Text('Excel file path'), PySG.In(size=(40, 1), enable_events=True, key='-FILE-'),
+        [PySG.Text('Excel file path'), PySG.In(size=(40, 1), enable_events=True, key='-FILE-'), PySG.FileBrowse(),
          PySG.Button('OK')],
         [PySG.Text('Output'), PySG.Output(size=(80, 5))]
         ]
